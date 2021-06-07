@@ -22,7 +22,7 @@ const taskRandom = async taskData => {
     const {delay} = taskData;
     for (let i = 0; BackgroundJob.isRunning(); i++) {
       console.log('Runned -> ', i);
-      await BackgroundJob.updateNotification({taskDesc: 'Runned -> ' + i});
+      await BackgroundJob.updateNotification({taskDesc:'Presioname! Runned -> ' + i + 's'});
       await sleep(delay);
     }
   });
@@ -30,14 +30,16 @@ const taskRandom = async taskData => {
 
 const App = () => {
   const {isConnected, isInternetReachable} = useNetInfo();
-  let playing = BackgroundJob.isRunning();
+  const [playing, setPalying] = React.useState(!BackgroundJob.isRunning()) 
 
-  React.useEffect(() => toggleBackground(), [isConnected])
+  React.useEffect(() => {
+    toggleBackground()
+  }, [isConnected])
 
   const options = {
     taskName: 'Example',
     taskTitle: 'Tarea',
-    taskDesc: 'ExampleTask desc',
+    taskDesc: 'Presioname!',
     taskIcon: {
       name: 'ic_launcher',
       type: 'mipmap',
@@ -48,14 +50,14 @@ const App = () => {
       indeterminate: true,
     },
     color: 'aliceblue',
-    linkingURI: 'https://google.com',
+    linkingURI: 'https://github.com/waraps',
     parameters: {
       delay: 1000,
     },
   };
   
   const toggleBackground = async () => {
-    playing = !playing;
+    setPalying(!playing)
     if (playing && isConnected) {
       try {
         console.log('Trying to start background service');
@@ -69,24 +71,24 @@ const App = () => {
       await BackgroundJob.stop();
     }
   };
-
   return (
     <>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
       <SafeAreaView>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           style={styles.scrollView}>
           <Header />
-          {global.HermesInternal == null ? null : (
+          {/* {global.HermesInternal == null ? null : (
             <View style={styles.engine}>
               <Text style={styles.footer}>Engine: Hermes</Text>
             </View>
-          )}
+          )} */}
           <View style={styles.body}>
             <TouchableOpacity
-              style={{height: 100, width: 100, backgroundColor: 'red'}}
+              style={{height: 100, width: 100, backgroundColor: 'red', borderRadius: 4,}}
               onPress={toggleBackground}></TouchableOpacity>
+              <Text style={{ padding: 4, width: 300}}>Presione el boton para ejecutar la tarea, si deseas detenerla vuelvelo a presionar o desconectate de internet</Text>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -104,14 +106,7 @@ const styles = StyleSheet.create({
   },
   body: {
     backgroundColor: Colors.white,
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+    flexDirection: 'row'
   },
 });
 
