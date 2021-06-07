@@ -11,6 +11,8 @@ import {
 import {Header, Colors} from 'react-native/Libraries/NewAppScreen';
 
 import BackgroundJob from 'react-native-background-actions';
+import {useNetInfo} from "@react-native-community/netinfo";
+
 
 const sleep = time => new Promise(resolve => setTimeout(() => resolve(), time));
 
@@ -26,35 +28,35 @@ const taskRandom = async taskData => {
   });
 };
 
-const options = {
-  taskName: 'Example',
-  taskTitle: 'Tarea',
-  taskDesc: 'ExampleTask desc',
-  taskIcon: {
-    name: 'ic_launcher',
-    type: 'mipmap',
-  },
-  progressBar: {
-    max: 100,
-    value: 0,
-    indeterminate: true,
-  },
-  color: 'aliceblue',
-  linkingURI: 'https://google.com',
-  parameters: {
-    delay: 1000,
-  },
-};
-
 const App = () => {
+  const {isConnected, isInternetReachable} = useNetInfo();
   let playing = BackgroundJob.isRunning();
 
-  /**
-   * Toggles the background task
-   */
+  React.useEffect(() => toggleBackground(), [isConnected])
+
+  const options = {
+    taskName: 'Example',
+    taskTitle: 'Tarea',
+    taskDesc: 'ExampleTask desc',
+    taskIcon: {
+      name: 'ic_launcher',
+      type: 'mipmap',
+    },
+    progressBar: {
+      max: 100,
+      value: 0,
+      indeterminate: true,
+    },
+    color: 'aliceblue',
+    linkingURI: 'https://google.com',
+    parameters: {
+      delay: 1000,
+    },
+  };
+  
   const toggleBackground = async () => {
     playing = !playing;
-    if (playing) {
+    if (playing && isConnected) {
       try {
         console.log('Trying to start background service');
         await BackgroundJob.start(taskRandom, options);
@@ -67,6 +69,7 @@ const App = () => {
       await BackgroundJob.stop();
     }
   };
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
